@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adam Audio</title>
+  <style>
+    body {
+      margin: 0;
+      padding-top: 20px;
+      background-color: black;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      height: 100vh;
+      color: #ffff33;
+    }
+    .title {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .circle {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: #333333;
+      border: 5px solid #ffff33;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ffff33;
+      font-size: 24px;
+      font-weight: bold;
+      margin: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .active {
+      background-color: #078007;
+    }
+  </style>
+</head>
+<body>
+  <!-- Add the visible title -->
+  <div class="title">Adam Audio</div>
+
+  <div class="container">
+    <div class="circle" id="circleA" data-index=0>A</div>
+    <div class="circle" id="circleB" data-index=1>B</div>
+    <div class="circle" id="circleC" data-index=2>C</div>
+    <div class="circle" id="circleD" data-index=3>D</div>
+  </div>
+
+  <script>
+    var socket = new WebSocket('ws://' + window.location.hostname + ':81/');
+    const circles = document.querySelectorAll('.circle');
+    
+    socket.onopen = function(event) {
+      console.log('WebSocket is connected.');
+    };
+    socket.onmessage = function(event) {
+      console.log('Message from server: ' + event.data);
+      if (event.data == 0) {
+        clearActive();
+        document.getElementById('circleA').classList.add('active');
+      } else if (event.data == 1) {
+        clearActive();
+        document.getElementById('circleB').classList.add('active');
+      } else if (event.data == 2) {
+        clearActive();
+        document.getElementById('circleC').classList.add('active');
+      } else if (event.data == 3) {
+        clearActive();
+        document.getElementById('circleD').classList.add('active');
+      }
+    };
+    function sendButtonIndex(index) {
+      socket.send(index);
+    }
+
+    function clearActive() {
+      circles.forEach(circle => circle.classList.remove('active'));
+    }
+    circles.forEach(circle => {
+      circle.addEventListener('click', () => {
+        clearActive();
+        circle.classList.add('active');
+        sendButtonIndex(circle.getAttribute('data-index'));
+      });
+    });
+  </script>
+</body>
+</html>
